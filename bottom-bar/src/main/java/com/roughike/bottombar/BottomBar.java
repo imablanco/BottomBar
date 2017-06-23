@@ -24,6 +24,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -114,7 +116,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
     private boolean shyHeightAlreadyCalculated;
     private boolean navBarAccountedHeightCalculated;
 
-    private BottomBarTab[] currentTabs = new BottomBarTab[]{};
+    private List<BottomBarTab> currentTabs = new ArrayList<>();
 
     public BottomBar(Context context) {
         this(context, null);
@@ -312,13 +314,13 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         updateItems(parser.parseTabs());
     }
 
-    public void addItem(@IdRes int id, @Nullable String title, @DrawableRes int iconRes) {
-        addItem(id, title, iconRes, null);
+    public void addItem(@Nullable String title, @DrawableRes int iconRes) {
+        addItem(title, iconRes, null);
     }
 
-    public void addItem(@IdRes int id, @Nullable String title, @DrawableRes int iconRes, BottomBarTab.Config config) {
+    public void addItem(@Nullable String title, @DrawableRes int iconRes, BottomBarTab.Config config) {
 
-        if (title == null && iconRes == 0)
+        if (TextUtils.isEmpty(title) && iconRes == 0)
             throw new IllegalStateException("This tab is supposed to be " +
                     "icon only, yet it has no icon specified");
 
@@ -327,12 +329,11 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         }
 
         BottomBarTab tab = new BottomBarTab(getContext());
-        if (id < 0) id = MiscUtils.generateViewId();
-        tab.setId(id);
-        if (title == null) tab.setIsTitleless(true);
-        else tab.setTitle(title);
-        tab.setIconResId(iconRes);
         tab.setIndexInContainer(tabContainer.getChildCount());
+        tab.setId(MiscUtils.generateViewId());
+        tab.setIconResId(iconRes);
+        if (TextUtils.isEmpty(title)) tab.setIsTitleless(true);
+        else tab.setTitle(title);
 
         tab.setConfig(config);
         updateItems(Collections.singletonList(tab), false);
@@ -363,7 +364,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         int index = 0;
         int biggestWidth = 0;
 
-        BottomBarTab[] viewsToAdd = new BottomBarTab[bottomBarItems.size()];
+        List<BottomBarTab> viewsToAdd = new ArrayList<>();
 
         for (BottomBarTab bottomBarTab : bottomBarItems) {
             BottomBarTab.Type type;
@@ -383,7 +384,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
             bottomBarTab.setType(type);
             bottomBarTab.prepareLayout();
 
-            if (index + currentTabs.length == currentTabPosition) {
+            if (index + currentTabs.size() == currentTabPosition) {
                 bottomBarTab.select(false);
 
                 handleBackgroundColorChange(bottomBarTab, false);
@@ -396,7 +397,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
                     biggestWidth = bottomBarTab.getWidth();
                 }
 
-                viewsToAdd[index] = bottomBarTab;
+                viewsToAdd.add(bottomBarTab);
             } else {
                 tabContainer.addView(bottomBarTab);
             }
@@ -406,21 +407,18 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
             index++;
         }
 
-        currentTabs = concatArrays(currentTabs, viewsToAdd);
+        currentTabs.addAll(viewsToAdd);
 
         if (!isTabletMode) {
             resizeTabsToCorrectSizes(currentTabs);
         }
     }
 
-    private BottomBarTab[] concatArrays(BottomBarTab[] currentTabs, BottomBarTab[] newTabs) {
-        BottomBarTab[] merged = new BottomBarTab[currentTabs.length + newTabs.length];
-        System.arraycopy(currentTabs, 0, merged, 0, currentTabs.length);
-        System.arraycopy(newTabs, 0, merged, currentTabs.length, newTabs.length);
-        return merged;
-    }
 
-    private void resizeTabsToCorrectSizes(BottomBarTab[] tabsToAdd) {
+    private void resizeTabsToCorrectSizes(List<BottomBarTab> tabsToAdd) {
+
+        if (tabsToAdd.isEmpty()) return;
+
         int viewWidth = MiscUtils.pixelToDp(getContext(), getWidth());
 
         if (viewWidth <= 0 || viewWidth > screenWidth) {
@@ -428,12 +426,12 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         }
 
         int proposedItemWidth = Math.min(
-                MiscUtils.dpToPixel(getContext(), viewWidth / tabsToAdd.length),
+                MiscUtils.dpToPixel(getContext(), viewWidth / tabsToAdd.size()),
                 maxFixedItemWidth
         );
 
         inActiveShiftingItemWidth = (int) (proposedItemWidth * 0.9);
-        activeShiftingItemWidth = (int) (proposedItemWidth + (proposedItemWidth * ((tabsToAdd.length - 1) * 0.1)));
+        activeShiftingItemWidth = (int) (proposedItemWidth + (proposedItemWidth * ((tabsToAdd.size() - 1) * 0.1)));
         int height = Math.round(getContext().getResources()
                 .getDimension(R.dimen.bb_height));
 
