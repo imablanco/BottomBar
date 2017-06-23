@@ -2,6 +2,7 @@ package com.example.bottombar.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.widget.TextView;
@@ -24,13 +25,21 @@ public class ThreeTabsActivity extends Activity {
 
         messageView = (TextView) findViewById(R.id.messageView);
 
-        BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+        final BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {
                 messageView.setText(TabMessage.get(tabId, false));
             }
         });
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                bottomBar.addItem(-1, "HOLA", R.drawable.ic_restaurants);
+            }
+        }, 1000);
+
 
         bottomBar.setOnTabReselectListener(new OnTabReselectListener() {
             @Override

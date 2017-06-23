@@ -15,6 +15,8 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.widget.TextView;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static android.support.annotation.Dimension.DP;
 
 /*
@@ -35,7 +37,23 @@ import static android.support.annotation.Dimension.DP;
  */
 class MiscUtils {
 
-    @NonNull protected static TypedValue getTypedValue(@NonNull Context context, @AttrRes int resId) {
+    private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
+
+
+    static int generateViewId() {
+        for (; ; ) {
+            final int result = sNextGeneratedId.get();
+            // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
+            int newValue = result + 1;
+            if (newValue > 0x00FFFFFF) newValue = 1; // Roll over to 1, not 0.
+            if (sNextGeneratedId.compareAndSet(result, newValue)) {
+                return result;
+            }
+        }
+    }
+
+    @NonNull
+    protected static TypedValue getTypedValue(@NonNull Context context, @AttrRes int resId) {
         TypedValue tv = new TypedValue();
         context.getTheme().resolveAttribute(resId, tv, true);
         return tv;
