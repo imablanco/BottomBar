@@ -314,11 +314,11 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         updateItems(parser.parseTabs());
     }
 
-    public void addItem(@Nullable String title, @DrawableRes int iconRes) {
-        addItem(title, iconRes, null);
+    public void addItem(int id, @Nullable String title, @DrawableRes int iconRes) {
+        addItem(id, title, iconRes, null);
     }
 
-    public void addItem(@Nullable String title, @DrawableRes int iconRes, BottomBarTab.Config config) {
+    public void addItem(int id, @Nullable String title, @DrawableRes int iconRes, BottomBarTab.Config config) {
 
         if (TextUtils.isEmpty(title) && iconRes == 0)
             throw new IllegalStateException("This tab is supposed to be " +
@@ -330,7 +330,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
 
         BottomBarTab tab = new BottomBarTab(getContext());
         tab.setIndexInContainer(tabContainer.getChildCount());
-        tab.setId(MiscUtils.generateViewId());
+        tab.setId(id >= 0 ? id : MiscUtils.generateViewId());
         tab.setIconResId(iconRes);
         if (TextUtils.isEmpty(title)) tab.setIsTitleless(true);
         else tab.setTitle(title);
@@ -396,11 +396,10 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
                 if (bottomBarTab.getWidth() > biggestWidth) {
                     biggestWidth = bottomBarTab.getWidth();
                 }
-
-                viewsToAdd.add(bottomBarTab);
             } else {
                 tabContainer.addView(bottomBarTab);
             }
+            viewsToAdd.add(bottomBarTab);
 
             bottomBarTab.setOnClickListener(this);
             bottomBarTab.setOnLongClickListener(this);

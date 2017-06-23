@@ -49,4 +49,10 @@
         android:layout_height="wrap_content"
         android:text="Using Badges" />
 
+    <Button
+        android:id="@+id/programmatically_tabs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tabs Programmatically Added" />
+
 </LinearLayout>
