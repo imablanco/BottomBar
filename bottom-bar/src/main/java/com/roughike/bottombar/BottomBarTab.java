@@ -4,6 +4,7 @@ import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -54,6 +55,7 @@ public class BottomBarTab extends LinearLayout {
     private Type type = Type.FIXED;
     private boolean isTitleless;
     private int iconResId;
+    private Drawable iconDrawable;
     private String title;
     private float inActiveAlpha;
     private float activeAlpha;
@@ -97,7 +99,8 @@ public class BottomBarTab extends LinearLayout {
         setBackgroundResource(MiscUtils.getDrawableRes(getContext(), R.attr.selectableItemBackgroundBorderless));
 
         iconView = (AppCompatImageView) findViewById(R.id.bb_bottom_bar_icon);
-        iconView.setImageResource(iconResId);
+        if (iconDrawable != null) iconView.setImageDrawable(iconDrawable);
+        else iconView.setImageResource(iconResId);
 
         if (type != Type.TABLET && !isTitleless) {
             titleView = (TextView) findViewById(R.id.bb_bottom_bar_title);
@@ -197,6 +200,14 @@ public class BottomBarTab extends LinearLayout {
 
     void setIconResId(int iconResId) {
         this.iconResId = iconResId;
+    }
+
+    public Drawable getIconDrawable() {
+        return iconDrawable;
+    }
+
+    public void setIconDrawable(Drawable iconDrawable) {
+        this.iconDrawable = iconDrawable;
     }
 
     TextView getTitleView() {

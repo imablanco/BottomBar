@@ -3,6 +3,7 @@ package com.example.bottombar.sample;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.IdRes;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +44,7 @@ public class ProgrammaticallyTabsActivity extends AppCompatActivity {
         });
 
         bottomBar.addItem(ProgrammaticallyTabMessage.FAVORITES, "Favorites", R.drawable.ic_favorites);
-        bottomBar.addItem(ProgrammaticallyTabMessage.NEARBY, "Nearby", R.drawable.ic_nearby);
+        bottomBar.addItem(ProgrammaticallyTabMessage.NEARBY, "Nearby", ContextCompat.getDrawable(this, R.drawable.ic_nearby));
 
         new Handler().postDelayed(new Runnable() {
             @Override

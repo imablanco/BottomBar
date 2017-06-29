@@ -314,13 +314,25 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         updateItems(parser.parseTabs());
     }
 
+    public void addItem(int id, @Nullable String title, Drawable icon) {
+        addItem(id, title, 0, icon, null);
+    }
+
+    public void addItem(int id, @Nullable String title, Drawable icon, BottomBarTab.Config config) {
+        addItem(id, title, 0, icon, config);
+    }
+
     public void addItem(int id, @Nullable String title, @DrawableRes int iconRes) {
-        addItem(id, title, iconRes, null);
+        addItem(id, title, iconRes, null, null);
     }
 
     public void addItem(int id, @Nullable String title, @DrawableRes int iconRes, BottomBarTab.Config config) {
+        addItem(id, title, iconRes, null, config);
+    }
 
-        if (TextUtils.isEmpty(title) && iconRes == 0)
+    private void addItem(int id, @Nullable String title, @DrawableRes int iconRes, Drawable icon, BottomBarTab.Config config) {
+
+        if (TextUtils.isEmpty(title) && (iconRes == 0 || icon == null))
             throw new IllegalStateException("This tab is supposed to be " +
                     "icon only, yet it has no icon specified");
 
@@ -332,6 +344,7 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         tab.setIndexInContainer(tabContainer.getChildCount());
         tab.setId(id >= 0 ? id : MiscUtils.generateViewId());
         tab.setIconResId(iconRes);
+        tab.setIconDrawable(icon);
         if (TextUtils.isEmpty(title)) tab.setIsTitleless(true);
         else tab.setTitle(title);
 
