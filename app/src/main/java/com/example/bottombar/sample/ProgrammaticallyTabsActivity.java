@@ -1,5 +1,6 @@
 package com.example.bottombar.sample;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.IdRes;
@@ -28,6 +29,8 @@ public class ProgrammaticallyTabsActivity extends AppCompatActivity {
         messageView = (TextView) findViewById(R.id.messageView);
 
         final BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+
+        bottomBar.setBackgroundColorWhenSelected(Color.RED);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelected(@IdRes int tabId) {

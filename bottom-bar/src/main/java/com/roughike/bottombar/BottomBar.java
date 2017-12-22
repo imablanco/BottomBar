@@ -601,8 +601,9 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
      */
     public void selectTabAtPosition(int position, boolean animate) {
         if (position > getTabCount() - 1 || position < 0) {
-            throw new IndexOutOfBoundsException("Can't select tab at position " +
+            Log.d("BottomBar", "Can't select tab at position " +
                     position + ". This BottomBar has no items at that position.");
+            return;
         }
 
         BottomBarTab oldTab = getCurrentTab();
@@ -729,6 +730,17 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
             @Override
             public void update(BottomBarTab tab) {
                 tab.setActiveColor(activeTabColor);
+            }
+        });
+    }
+
+    public void setBackgroundColorWhenSelected(@ColorInt int color) {
+        defaultBackgroundColor = color;
+
+        batchPropertyApplier.applyToAllTabs(new BatchTabPropertyApplier.TabPropertyUpdater() {
+            @Override
+            public void update(BottomBarTab tab) {
+                tab.setBarColorWhenSelected(defaultBackgroundColor);
             }
         });
     }
