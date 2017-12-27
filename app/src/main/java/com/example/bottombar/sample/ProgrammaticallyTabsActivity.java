@@ -55,5 +55,15 @@ public class ProgrammaticallyTabsActivity extends AppCompatActivity {
                 bottomBar.addItem(ProgrammaticallyTabMessage.FRIENDS, "Friends", R.drawable.ic_friends);
             }
         }, 1500);
+
+        bottomBar.setOnTabReselectListener(new OnTabReselectListener() {
+
+            @Override
+            public void onTabReSelected(int tabId) {
+                if (bottomBar.getCurrentTabPosition() >= 0)
+                    bottomBar.deselectTabAtWithId(tabId, true);
+                else bottomBar.selectTabWithId(tabId, true);
+            }
+        });
     }
 }

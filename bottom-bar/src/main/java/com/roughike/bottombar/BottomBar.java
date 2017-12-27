@@ -59,6 +59,10 @@ import java.util.List;
 public class BottomBar extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
     private static final String STATE_CURRENT_SELECTED_TAB = "STATE_CURRENT_SELECTED_TAB";
     private static final float DEFAULT_INACTIVE_SHIFTING_TAB_ALPHA = 0.6f;
+
+    private static final int NO_POSITION = -1;
+    private static final int NO_ID = -1;
+
     // Behaviors
     private static final int BEHAVIOR_NONE = 0;
     private static final int BEHAVIOR_SHIFTING = 1;
@@ -576,12 +580,16 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         selectTabAtPosition(defaultTabPosition);
     }
 
+    public void selectTabWithId(@IdRes int tabResId) {
+        selectTabWithId(tabResId, false);
+    }
+
     /**
      * Select the tab with the corresponding id.
      */
-    public void selectTabWithId(@IdRes int tabResId) {
+    public void selectTabWithId(@IdRes int tabResId, boolean animate) {
         int tabPosition = findPositionForTabWithId(tabResId);
-        selectTabAtPosition(tabPosition);
+        selectTabAtPosition(tabPosition, animate);
     }
 
     /**
@@ -609,12 +617,30 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         BottomBarTab oldTab = getCurrentTab();
         BottomBarTab newTab = getTabAtPosition(position);
 
-        oldTab.deselect(animate);
-        newTab.select(animate);
+        if (oldTab != null) oldTab.deselect(animate);
+        if (newTab != null) {
+            newTab.select(animate);
+            updateSelectedTab(position);
+            shiftingMagic(oldTab, newTab, animate);
+            handleBackgroundColorChange(newTab, animate);
+        }
+    }
 
-        updateSelectedTab(position);
-        shiftingMagic(oldTab, newTab, animate);
-        handleBackgroundColorChange(newTab, animate);
+    public void deselectTabAtWithId(int id, boolean animate) {
+        deselectTabAtPosition(findPositionForTabWithId(id), animate);
+    }
+
+    public void deselectCurrentTab(boolean animate) {
+        deselectTabAtPosition(getCurrentTabPosition(), animate);
+    }
+
+    public void deselectTabAtPosition(int position, boolean animate) {
+        BottomBarTab oldTab = getTabAtPosition(position);
+        if (oldTab != null) {
+            oldTab.deselect(animate);
+            currentTabPosition = NO_POSITION;
+            oldTab.updateWidth(inActiveShiftingItemWidth, animate);
+        }
     }
 
     public int getTabCount() {
@@ -624,13 +650,15 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
     /**
      * Get the currently selected tab.
      */
+    @Nullable
     public BottomBarTab getCurrentTab() {
         return getTabAtPosition(getCurrentTabPosition());
     }
 
     /**
-     * Get the tab at the specified position.
+     * Get the tab at the specified position or null if no tab is selected.
      */
+    @Nullable
     public BottomBarTab getTabAtPosition(int position) {
         View child = tabContainer.getChildAt(position);
 
@@ -642,11 +670,11 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
     }
 
     /**
-     * Get the resource id for the currently selected tab.
+     * Get the resource id for the currently selected tab or 0 if no tab is selected.
      */
     @IdRes
     public int getCurrentTabId() {
-        return getCurrentTab().getId();
+        return getCurrentTab() != null ? getCurrentTab().getId() : NO_ID;
     }
 
     /**
@@ -976,11 +1004,11 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         BottomBarTab oldTab = getCurrentTab();
 
         if (tabSelectionInterceptor != null
-                && tabSelectionInterceptor.shouldInterceptTabSelection(oldTab.getId(), newTab.getId())) {
+                && tabSelectionInterceptor.shouldInterceptTabSelection(oldTab != null ? oldTab.getId() : NO_ID, newTab.getId())) {
             return;
         }
 
-        oldTab.deselect(true);
+        if (oldTab != null) oldTab.deselect(true);
         newTab.select(true);
 
         shiftingMagic(oldTab, newTab, true);
@@ -1004,26 +1032,27 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
     }
 
     private void updateSelectedTab(int newPosition) {
-        int newTabId = getTabAtPosition(newPosition).getId();
-
-        if (newPosition != currentTabPosition) {
-            if (onTabSelectListener != null) {
-                onTabSelectListener.onTabSelected(newTabId);
+        BottomBarTab currentTab = getTabAtPosition(newPosition);
+        if (currentTab != null) {
+            int newTabId = currentTab.getId();
+            if (newPosition != currentTabPosition) {
+                currentTabPosition = newPosition;
+                if (onTabSelectListener != null) {
+                    onTabSelectListener.onTabSelected(newTabId);
+                }
+            } else if (onTabReselectListener != null && !ignoreTabReselectionListener) {
+                onTabReselectListener.onTabReSelected(newTabId);
             }
-        } else if (onTabReselectListener != null && !ignoreTabReselectionListener) {
-            onTabReselectListener.onTabReSelected(newTabId);
-        }
 
-        currentTabPosition = newPosition;
-
-        if (ignoreTabReselectionListener) {
-            ignoreTabReselectionListener = false;
+            if (ignoreTabReselectionListener) {
+                ignoreTabReselectionListener = false;
+            }
         }
     }
 
-    private void shiftingMagic(BottomBarTab oldTab, BottomBarTab newTab, boolean animate) {
+    private void shiftingMagic(@Nullable BottomBarTab oldTab, BottomBarTab newTab, boolean animate) {
         if (isShiftingMode()) {
-            oldTab.updateWidth(inActiveShiftingItemWidth, animate);
+            if (oldTab != null) oldTab.updateWidth(inActiveShiftingItemWidth, animate);
             newTab.updateWidth(activeShiftingItemWidth, animate);
         }
     }
