@@ -356,6 +356,30 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
         updateItems(Collections.singletonList(tab), false);
     }
 
+    public void addItem(int id, @Nullable String title, IconProvider iconProvider) {
+        addItem(id, title, iconProvider, null);
+    }
+
+    public void addItem(int id, @Nullable String title, IconProvider iconProvider, BottomBarTab.Config config) {
+
+        if (TextUtils.isEmpty(title) && iconProvider == null)
+            throw new IllegalStateException("This tab is supposed to be " +
+                    "icon only, yet it has no icon provider specified");
+
+        if (config == null) {
+            config = getTabConfig();
+        }
+
+        BottomBarTab tab = new BottomBarTab(getContext());
+        tab.setIndexInContainer(tabContainer.getChildCount());
+        tab.setId(id >= 0 ? id : MiscUtils.generateViewId());
+        tab.setIconProvider(iconProvider);
+        if (TextUtils.isEmpty(title)) tab.setIsTitleless(true);
+        else tab.setTitle(title);
+
+        tab.setConfig(config);
+        updateItems(Collections.singletonList(tab), false);
+    }
 
     private BottomBarTab.Config getTabConfig() {
         return new BottomBarTab.Config.Builder()

@@ -35,7 +35,7 @@ import android.widget.TextView;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-public class BottomBarTab extends LinearLayout {
+public class BottomBarTab extends LinearLayout implements IconCallback {
     @VisibleForTesting
     static final String STATE_BADGE_COUNT = "STATE_BADGE_COUNT_FOR_TAB_";
 
@@ -56,6 +56,7 @@ public class BottomBarTab extends LinearLayout {
     private boolean isTitleless;
     private int iconResId;
     private Drawable iconDrawable;
+    private IconProvider iconProvider;
     private String title;
     private float inActiveAlpha;
     private float activeAlpha;
@@ -100,7 +101,10 @@ public class BottomBarTab extends LinearLayout {
 
         iconView = (AppCompatImageView) findViewById(R.id.bb_bottom_bar_icon);
         if (iconDrawable != null) iconView.setImageDrawable(iconDrawable);
-        else iconView.setImageResource(iconResId);
+        else if (iconResId > 0) iconView.setImageResource(iconResId);
+        else if (iconProvider != null) {
+            iconProvider.getIcon(this);
+        }
 
         if (type != Type.TABLET && !isTitleless) {
             titleView = (TextView) findViewById(R.id.bb_bottom_bar_title);
@@ -208,6 +212,10 @@ public class BottomBarTab extends LinearLayout {
 
     public void setIconDrawable(Drawable iconDrawable) {
         this.iconDrawable = iconDrawable;
+    }
+
+    public void setIconProvider(IconProvider iconProvider) {
+        this.iconProvider = iconProvider;
     }
 
     TextView getTitleView() {
@@ -645,6 +653,11 @@ public class BottomBarTab extends LinearLayout {
     void restoreState(Bundle savedInstanceState) {
         int previousBadgeCount = savedInstanceState.getInt(STATE_BADGE_COUNT + getIndexInTabContainer());
         setBadgeCount(previousBadgeCount);
+    }
+
+    @Override
+    public void onIcon(Drawable drawable) {
+        iconView.setImageDrawable(drawable);
     }
 
     enum Type {

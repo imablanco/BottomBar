@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.IconCallback;
+import com.roughike.bottombar.IconProvider;
 import com.roughike.bottombar.OnTabReselectListener;
 import com.roughike.bottombar.OnTabSelectListener;
 
@@ -47,7 +49,12 @@ public class ProgrammaticallyTabsActivity extends AppCompatActivity {
         });
 
         bottomBar.addItem(ProgrammaticallyTabMessage.FAVORITES, "Favorites", R.drawable.ic_favorites);
-        bottomBar.addItem(ProgrammaticallyTabMessage.NEARBY, "Nearby", ContextCompat.getDrawable(this, R.drawable.ic_nearby));
+        bottomBar.addItem(ProgrammaticallyTabMessage.NEARBY, "Nearby", new IconProvider() {
+            @Override
+            public void getIcon(IconCallback callback) {
+                callback.onIcon(ContextCompat.getDrawable(ProgrammaticallyTabsActivity.this, R.drawable.ic_nearby));
+            }
+        });
 
         new Handler().postDelayed(new Runnable() {
             @Override
