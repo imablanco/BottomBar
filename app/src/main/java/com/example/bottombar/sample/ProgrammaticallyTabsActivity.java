@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.annotation.IdRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,13 @@ public class ProgrammaticallyTabsActivity extends AppCompatActivity {
         messageView = (TextView) findViewById(R.id.messageView);
 
         final BottomBar bottomBar = (BottomBar) findViewById(R.id.bottomBar);
+
+        messageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomBar.clearItems();
+            }
+        });
 
         bottomBar.setBackgroundColorWhenSelected(Color.RED);
         bottomBar.setOnTabSelectListener(new OnTabSelectListener() {

@@ -395,12 +395,19 @@ public class BottomBar extends LinearLayout implements View.OnClickListener, Vie
                 .build();
     }
 
+    public void clearItems() {
+        updateItems(Collections.<BottomBarTab>emptyList());
+    }
+
     private void updateItems(List<BottomBarTab> bottomBarItems) {
         updateItems(bottomBarItems, true);
     }
 
     private void updateItems(List<BottomBarTab> bottomBarItems, boolean fromScratch) {
-        if (fromScratch) tabContainer.removeAllViews();
+        if (fromScratch) {
+            tabContainer.removeAllViews();
+            currentTabs.clear();
+        }
 
         int index = 0;
         int biggestWidth = 0;
